@@ -2,7 +2,7 @@
 const fs = require('fs');
 const archiver = require('archiver');
 
-const {version, buildDir, distDir} = require('../buildConfig');
+const { version, buildDir, distDir } = require('../buildConfig');
 
 // check that build exists
 console.log(buildDir);
@@ -20,17 +20,17 @@ const output = fs.createWriteStream(`${buildDir}/release-${version}.zip`);
 const archive = archiver('zip', { zlib: { level: 9 } });
 
 archive
-	.on('warning', function (err) {
+	.on('warning', (err) => {
 		if (err.code === 'ENOENT') {
 			console.warn(err);
 		} else {
 			throw err;
 		}
 	})
-	.on('error', function (err) {
+	.on('error', (err) => {
 		throw err;
 	});
 
 archive.pipe(output);
-archive.glob('**/*', {cwd: distDir});
+archive.glob('**/*', { cwd: distDir });
 archive.finalize();

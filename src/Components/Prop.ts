@@ -1,4 +1,4 @@
-import { GameScene } from '../scenes/GameScene';
+import type { GameScene } from '../scenes/GameScene';
 
 export class Prop {
 	public scene: GameScene;
@@ -8,7 +8,15 @@ export class Prop {
 	public collides: boolean;
 	public scale: number = 1; // scale calculation in game is _really_ small
 
-	constructor(scene: GameScene, name: string, offset: number, height: number, scale: number = 3000, flipX: boolean = false, collides: boolean = false) {
+	constructor(
+		scene: GameScene,
+		name: string,
+		offset: number,
+		height: number,
+		scale: number = 3000,
+		flipX: boolean = false,
+		collides: boolean = false,
+	) {
 		this.scene = scene;
 		this.sprite = scene.add.sprite(-999, -999, name).setOrigin(0.5, 1).setVisible(false);
 		this.offset = offset;

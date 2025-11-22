@@ -1,7 +1,7 @@
-import './libs/GLTFLoader';
-import 'phaser';
 import '@csstools/normalize.css';
 import './css/styles.css';
+
+import 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { gameConfig } from './config/GameConfig';
 import { LoadScene } from './scenes/LoadScene';
@@ -23,16 +23,16 @@ window.onload = () => {
 
 	// set up stats
 	if (window.env.buildType !== 'production') {
-		const Stats = require('stats-js');
-		const stats = new Stats();
-		stats.setMode(0); // 0: fps, 1: ms
-		stats.domElement.style.position = 'absolute';
-		stats.domElement.style.left = '0px';
-		stats.domElement.style.top = '0px';
-		document.body.appendChild(stats.domElement);
-
-		game.events.on('prestep', () => stats.begin());
-		game.events.on('postrender', () => stats.end());
+		// const Stats = require('stats-js');
+		// const stats = new Stats();
+		// stats.setMode(0); // 0: fps, 1: ms
+		// stats.domElement.style.position = 'absolute';
+		// stats.domElement.style.left = '0px';
+		// stats.domElement.style.top = '0px';
+		// document.body.appendChild(stats.domElement);
+		//
+		// game.events.on('prestep', () => stats.begin());
+		// game.events.on('postrender', () => stats.end());
 	}
 
 	game.scene.add('BootScene', BootScene, true);

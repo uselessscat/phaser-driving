@@ -11,38 +11,33 @@ export class LoadScene extends BaseScene {
 		this.load.on('progress', (value: number) => {
 			progress.clear();
 			progress.fillStyle(0xffffff, 1);
-			progress.fillRect(
-				0,
-				this.scale.gameSize.height / 2,
-				this.scale.gameSize.width * value,
-				60,
-			);
+			progress.fillRect(0, this.scale.gameSize.height / 2, this.scale.gameSize.width * value, 60);
 		});
 
 		this.load.on('complete', () => {
 			progress.destroy();
 		});
 
-		this.load.image('clouds1', './assets/clouds.png');
-		this.load.image('clouds2', './assets/clouds2.png');
-		this.load.image('mountain', './assets/mountain.png');
-		this.load.image('hills', './assets/hills.png');
-		this.load.image('boulder1', './assets/boulder.png');
-		this.load.image('boulder2', './assets/boulder2.png');
-		this.load.image('tree1', './assets/tree.png');
-		this.load.image('tree2', './assets/tree2.png');
-		this.load.image('tree3', './assets/tree3.png');
-		this.load.image('turnsign', './assets/turn-sign.png');
+		this.load.image('clouds1', './assets/images/clouds.png');
+		this.load.image('clouds2', './assets/images/clouds2.png');
+		this.load.image('mountain', './assets/images/mountain.png');
+		this.load.image('hills', './assets/images/hills.png');
+		this.load.image('boulder1', './assets/images/boulder.png');
+		this.load.image('boulder2', './assets/images/boulder2.png');
+		this.load.image('tree1', './assets/images/tree.png');
+		this.load.image('tree2', './assets/images/tree2.png');
+		this.load.image('tree3', './assets/images/tree3.png');
+		this.load.image('turnsign', './assets/images/turn-sign.png');
 
-		this.load.spritesheet('particles', './assets/smoke-particle.png', { frameWidth: 16, frameHeight: 16 });
+		this.load.spritesheet('smoke', './assets/particles/smoke.png', { frameWidth: 16, frameHeight: 16 });
 
-		this.load.spritesheet('car-green', './assets/car-green.png', { frameWidth: 64, frameHeight: 64 });
-		this.load.spritesheet('car-army', './assets/car-army.png', { frameWidth: 64, frameHeight: 64 });
-		this.load.spritesheet('car-red', './assets/car-red.png', { frameWidth: 64, frameHeight: 64 });
-		this.load.spritesheet('car-yellow', './assets/car-yellow.png', { frameWidth: 64, frameHeight: 64 });
-		this.load.spritesheet('car-blue', './assets/car-blue.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-green', './assets/images/car-green.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-army', './assets/images/car-army.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-red', './assets/images/car-red.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-yellow', './assets/images/car-yellow.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-blue', './assets/images/car-blue.png', { frameWidth: 64, frameHeight: 64 });
 
-		this.load.binary('playercar', './assets/3d/car.glb');
+		this.load.binary('playercar', './assets/models/car.glb');
 
 		this.load.audio('engine', ['./assets/sound/engine-loop.wav']);
 		this.load.audio('tire-squeal', ['./assets/sound/tire-squeal.wav']);
@@ -61,5 +56,4 @@ export class LoadScene extends BaseScene {
 	public create(): void {
 		this.scene.start('GameScene', {});
 	}
-
 }

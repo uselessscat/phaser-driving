@@ -1,7 +1,7 @@
-import { RaceUiScene } from '../scenes/RaceUiScene';
+import type { RaceUiScene } from '../scenes/RaceUiScene';
 import { gameSettings } from '../config/GameSettings';
-import { Util } from './Util';
-import { RadarCar } from './RadarCar';
+import { Util } from '../utils/Util';
+import type { RadarCar } from './RadarCar';
 
 const centerX = 17;
 const playerY = 130;
@@ -20,7 +20,6 @@ export class TrackRadar {
 	private x: number;
 	private y: number;
 
-
 	constructor(scene: RaceUiScene, x: number, y: number) {
 		this.scene = scene;
 		this.x = x;
@@ -30,7 +29,7 @@ export class TrackRadar {
 
 		this.container = this.scene.add.container(this.x, this.y);
 
-		this.bg = this.scene.add.rectangle(0, 0, 33, 163, 0xffffff, .75).setOrigin(0, 0);
+		this.bg = this.scene.add.rectangle(0, 0, 33, 163, 0xffffff, 0.75).setOrigin(0, 0);
 		this.grid = this.scene.add.grid(2, 2, 30, 160, 30 / gameSettings.lanes, 160 / 5, 0x333333, 0.8).setOrigin(0, 0);
 
 		this.graphics = this.scene.add.graphics();

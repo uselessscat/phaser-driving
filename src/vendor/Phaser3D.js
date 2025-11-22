@@ -1,5 +1,11 @@
+import * as THREE from 'three';
+import { GLTFLoader } from './GLTFLoader.js';
+
 export class Phaser3D extends Phaser.Events.EventEmitter {
-	constructor(phaserScene, { fov = 75, aspect = null, near = 0.1, far = 1000, x = 0, y = 0, z = 0, anisotropy = 1, antialias = false } = {}) {
+	constructor(
+		phaserScene,
+		{ fov = 75, aspect = null, near = 0.1, far = 1000, x = 0, y = 0, z = 0, anisotropy = 1, antialias = false } = {},
+	) {
 		super();
 
 		this.root = phaserScene;
@@ -21,7 +27,7 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: phaserScene.sys.game.canvas,
 			context: phaserScene.sys.game.context,
-			antialias: antialias
+			antialias: antialias,
 		});
 
 		//  We don't want three.js to wipe our gl context!
@@ -29,17 +35,14 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 
 		//  Create our Extern render callback
 		this.view.render = () => {
-
 			//  This is important to retain GL state between renders
 			this.renderer.state.reset();
 
 			this.renderer.render(this.scene, this.camera);
-
 		};
 
 		//  Some basic factory helpers
 		this.add = {
-
 			//  Lights
 			ambientLight: (config) => this.addAmbientLight(config),
 			directionalLight: (config) => this.addDirectionalLight(config),
@@ -126,14 +129,22 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 	}
 
 	setCubeBackground(...files) {
-		this.scene.background = this.createCubeTexture(...files)
+		this.scene.background = this.createCubeTexture(...files);
 
 		return this;
 	}
 
 	//  three.js uses a right-handed coordinate system!
 	//  So cubemaps found on the web likely need their nx/px swapped and ny = rotate 90 deg clockwise and py = rotate 90 deg counter clockwise
-	createCubeTexture(path, right = 'px.png', left = 'nx.png', up = 'py.png', down = 'ny.png', back = 'pz.png', front = 'nz.png') {
+	createCubeTexture(
+		path,
+		right = 'px.png',
+		left = 'nx.png',
+		up = 'py.png',
+		down = 'ny.png',
+		back = 'pz.png',
+		front = 'nz.png',
+	) {
 		if (path.substr(-1) !== '/') {
 			path = path.concat('/');
 		}
@@ -172,7 +183,7 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 	addGLTFModel(key, resourcePath, onLoad) {
 		const data = this.root.cache.binary.get(key);
 
-		const loader = new THREE.GLTFLoader();
+		const loader = new GLTFLoader();
 
 		loader.parse(data, resourcePath, (gltf) => {
 			const group = new THREE.Group();
@@ -188,28 +199,25 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 			if (onLoad) {
 				onLoad(gltf, group);
 			}
-
 		});
 	}
 
 	parseGLTFModel(key, resourcePath, onLoad) {
 		const data = this.root.cache.binary.get(key);
 
-		const loader = new THREE.GLTFLoader();
+		const loader = new GLTFLoader();
 
 		loader.parse(data, resourcePath, (gltf) => {
-
 			this.emit('loadgltf', gltf);
 
 			if (onLoad) {
 				onLoad(gltf);
 			}
-
 		});
 	}
 
 	getTexture(key) {
-		let texture = new THREE.Texture();
+		const texture = new THREE.Texture();
 
 		texture.image = this.root.textures.get(key).getSourceImage();
 
@@ -256,7 +264,17 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return light;
 	}
 
-	addSpotLight({ color = 0xffffff, intensity = 1, distance = 0, angle = Math.PI / 4, penumbra = 0.05, decay = 1, x = 0, y = 0, z = 0 } = {}) {
+	addSpotLight({
+		color = 0xffffff,
+		intensity = 1,
+		distance = 0,
+		angle = Math.PI / 4,
+		penumbra = 0.05,
+		decay = 1,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const light = new THREE.SpotLight(color, intensity, distance, angle, penumbra, decay);
 
 		light.position.set(x, y, z);
@@ -277,7 +295,7 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 
 		this.scene.add(group);
 
-		return group
+		return group;
 	}
 
 	addMesh(mesh) {
@@ -285,16 +303,21 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 			for (let i = 0; i < mesh.length; i++) {
 				this.scene.add(mesh[i]);
 			}
-		}
-		else {
+		} else {
 			this.scene.add(mesh);
 		}
-
 
 		return this;
 	}
 
-	createTexture({ key, wrap, wrapS = THREE.ClampToEdgeWrapping, wrapT = THREE.ClampToEdgeWrapping, repeatX = 2, repeatY = 2 } = {}) {
+	createTexture({
+		key,
+		wrap,
+		wrapS = THREE.ClampToEdgeWrapping,
+		wrapT = THREE.ClampToEdgeWrapping,
+		repeatX = 2,
+		repeatY = 2,
+	} = {}) {
 		const texture = this.getTexture(key);
 
 		if (wrap) {
@@ -313,16 +336,15 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 	createMaterial(texture, color, material) {
 		if (material && !Phaser.Utils.Objects.IsPlainObject(material)) {
 			return material;
-		}
-		else {
+		} else {
 			if (material === null) {
 				material = {};
 			}
 
-			let config = { ...material };
+			const config = { ...material };
 
 			if (texture) {
-				config.map = (typeof (texture) === 'string') ? this.getTexture(texture) : texture;
+				config.map = typeof texture === 'string' ? this.getTexture(texture) : texture;
 			}
 
 			if (color) {
@@ -339,31 +361,53 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 
 			if (isBasic) {
 				return new THREE.MeshBasicMaterial(config);
-			}
-			else if (isPhong) {
+			} else if (isPhong) {
 				return new THREE.MeshPhongMaterial(config);
-			}
-			else if (isLine) {
+			} else if (isLine) {
 				return new THREE.LineBasicMaterial(config);
-			}
-			else {
+			} else {
 				return new THREE.MeshStandardMaterial(config);
 			}
 		}
 	}
 
 	createMesh(geometry, material, x = 0, y = 0, z = 0) {
-		let obj = new THREE.Mesh(geometry, material);
+		const obj = new THREE.Mesh(geometry, material);
 
 		obj.position.set(x, y, z);
 
 		return obj;
 	}
 
-	makeText({ text = '', font = '', size = 100, height = 50, curveSegments = 12, bevelEnabled = false, bevelThickness = 10, bevelSize = 8, bevelSegments = 3, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeText({
+		text = '',
+		font = '',
+		size = 100,
+		height = 50,
+		curveSegments = 12,
+		bevelEnabled = false,
+		bevelThickness = 10,
+		bevelSize = 8,
+		bevelSegments = 3,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		font = new THREE.Font(this.root.sys.cache.json.get(font));
 
-		const geometry = new THREE.TextBufferGeometry(text, { font, size, height, curveSegments, bevelEnabled, bevelThickness, bevelSize, bevelSegments });
+		const geometry = new THREE.TextBufferGeometry(text, {
+			font,
+			size,
+			height,
+			curveSegments,
+			bevelEnabled,
+			bevelThickness,
+			bevelSize,
+			bevelSegments,
+		});
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
 	}
@@ -376,7 +420,18 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeCircle({ radius = 1, segments = 8, thetaStart = 0, thetaLength = Math.PI * 2, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeCircle({
+		radius = 1,
+		segments = 8,
+		thetaStart = 0,
+		thetaLength = Math.PI * 2,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.CircleBufferGeometry(radius, segments, thetaStart, thetaLength);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -390,8 +445,28 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeRing({ innerRadius = 0.5, outerRadius = 1, thetaSegments = 8, phiSegments = 1, thetaStart = 0, thetaLength = Math.PI * 2, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
-		const geometry = new THREE.RingBufferGeometry(innerRadius, outerRadius, thetaSegments, phiSegments, thetaStart, thetaLength);
+	makeRing({
+		innerRadius = 0.5,
+		outerRadius = 1,
+		thetaSegments = 8,
+		phiSegments = 1,
+		thetaStart = 0,
+		thetaLength = Math.PI * 2,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
+		const geometry = new THREE.RingBufferGeometry(
+			innerRadius,
+			outerRadius,
+			thetaSegments,
+			phiSegments,
+			thetaStart,
+			thetaLength,
+		);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
 	}
@@ -418,7 +493,16 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeShape({ shapes, curveSegments = 12, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeShape({
+		shapes,
+		curveSegments = 12,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.ShapeBufferGeometry(shapes, curveSegments);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -446,7 +530,19 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeTube({ path, tubularSegments = 64, radius = 1, radialSegments = 8, closed = false, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeTube({
+		path,
+		tubularSegments = 64,
+		radius = 1,
+		radialSegments = 8,
+		closed = false,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.TubeBufferGeometry(path, tubularSegments, radius, radialSegments, closed);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -460,7 +556,17 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeParametric({ func, slices, stacks, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeParametric({
+		func,
+		slices,
+		stacks,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.ParametricBufferGeometry(func, slices, stacks);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -474,7 +580,19 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeTorus({ radius = 1, tube = 0.4, radialSegments = 8, tubularSegments = 6, arc = Math.PI * 2, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeTorus({
+		radius = 1,
+		tube = 0.4,
+		radialSegments = 8,
+		tubularSegments = 6,
+		arc = Math.PI * 2,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.TorusBufferGeometry(radius, tube, radialSegments, tubularSegments, arc);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -488,7 +606,18 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makePolyhedron({ vertices = [], indices = [], radius = 6, detail = 2, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makePolyhedron({
+		vertices = [],
+		indices = [],
+		radius = 6,
+		detail = 2,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.PolyhedronBufferGeometry(vertices, indices, radius, detail);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -502,7 +631,16 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeOctahedron({ radius = 1, detail = 0, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeOctahedron({
+		radius = 1,
+		detail = 0,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.OctahedronBufferGeometry(radius, detail);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -516,7 +654,16 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeIcosahedron({ radius = 1, detail = 0, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeIcosahedron({
+		radius = 1,
+		detail = 0,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.IcosahedronBufferGeometry(radius, detail);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -530,7 +677,16 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeTetrahedron({ radius = 1, detail = 0, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeTetrahedron({
+		radius = 1,
+		detail = 0,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.TetrahedronBufferGeometry(radius, detail);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -544,7 +700,20 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeTorusKnot({ radius = 1, tube = 0.4, tubularSegments = 64, radialSegments = 8, p = 2, q = 3, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeTorusKnot({
+		radius = 1,
+		tube = 0.4,
+		tubularSegments = 64,
+		radialSegments = 8,
+		p = 2,
+		q = 3,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.TorusKnotBufferGeometry(radius, tube, tubularSegments, radialSegments, p, q);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -558,7 +727,18 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makePlane({ width = 1, height = 1, widthSegments = 1, heightSegments = 1, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makePlane({
+		width = 1,
+		height = 1,
+		widthSegments = 1,
+		heightSegments = 1,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.PlaneBufferGeometry(width, height, widthSegments, heightSegments);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -584,7 +764,17 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return plane;
 	}
 
-	makeSphere({ radius = 1, widthSegments = 8, heightSegments = 6, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeSphere({
+		radius = 1,
+		widthSegments = 8,
+		heightSegments = 6,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.SphereBufferGeometry(radius, widthSegments, heightSegments);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -598,8 +788,30 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeCone({ radius = 1, height = 1, radialSegments = 8, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
-		const geometry = new THREE.ConeBufferGeometry(radius, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength);
+	makeCone({
+		radius = 1,
+		height = 1,
+		radialSegments = 8,
+		heightSegments = 1,
+		openEnded = false,
+		thetaStart = 0,
+		thetaLength = Math.PI * 2,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
+		const geometry = new THREE.ConeBufferGeometry(
+			radius,
+			height,
+			radialSegments,
+			heightSegments,
+			openEnded,
+			thetaStart,
+			thetaLength,
+		);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
 	}
@@ -612,8 +824,32 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeCylinder({ radiusTop = 1, radiusBottom = 1, height = 1, radialSegments = 8, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
-		const geometry = new THREE.CylinderBufferGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength);
+	makeCylinder({
+		radiusTop = 1,
+		radiusBottom = 1,
+		height = 1,
+		radialSegments = 8,
+		heightSegments = 1,
+		openEnded = false,
+		thetaStart = 0,
+		thetaLength = Math.PI * 2,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
+		const geometry = new THREE.CylinderBufferGeometry(
+			radiusTop,
+			radiusBottom,
+			height,
+			radialSegments,
+			heightSegments,
+			openEnded,
+			thetaStart,
+			thetaLength,
+		);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
 	}
@@ -626,7 +862,16 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeDodecahedron({ radius = 1, detail = 0, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeDodecahedron({
+		radius = 1,
+		detail = 0,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		const geometry = new THREE.DodecahedronBufferGeometry(radius, detail);
 
 		return this.createMesh(geometry, this.createMaterial(texture, color, material), x, y, z);
@@ -640,7 +885,18 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		return obj;
 	}
 
-	makeBox({ size = null, width = 1, height = 1, depth = 1, texture = null, color = 0xffffff, material = null, x = 0, y = 0, z = 0 } = {}) {
+	makeBox({
+		size = null,
+		width = 1,
+		height = 1,
+		depth = 1,
+		texture = null,
+		color = 0xffffff,
+		material = null,
+		x = 0,
+		y = 0,
+		z = 0,
+	} = {}) {
 		if (size) {
 			width = size;
 			height = size;

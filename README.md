@@ -10,8 +10,10 @@ Shameless plug of using my phaser plugin for playing tracker music: https://gith
 ---
 
 Thanks to Jake Gordon for their blog post on javascript pseudo 3d racers
+
 * https://codeincomplete.com/posts/javascript-racer/
 
 Assets used:
+
 * Low Poly Jeep by https://sketchfab.com/BosstoneBaga - used under CC-BY license
 * Dream Candy by Drozerix https://modarchive.org/index.php?request=view_by_moduleid&query=178565 - Public Domain

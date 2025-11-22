@@ -1,8 +1,8 @@
 import { SegmentPoint } from './SegmentPoint';
 import { gameSettings } from '../config/GameSettings';
-import { DarkColors, LightColors } from './Colors';
-import { Prop } from './Prop';
-import { Car } from './Car';
+import { DarkColors, LightColors } from '../constants/Colors';
+import type { Prop } from './Prop';
+import type { Car } from './Car';
 
 export class TrackSegment {
 	public index: number;

@@ -1,9 +1,9 @@
 import { Car } from './Car';
-import { Road } from './Road';
+import type { Road } from './Road';
 import { gameSettings } from '../config/GameSettings';
-import { GameScene } from '../scenes/GameScene';
-import { TrackSegment } from './TrackSegment';
-import { Util } from './Util';
+import type { GameScene } from '../scenes/GameScene';
+import type { TrackSegment } from './TrackSegment';
+import { Util } from '../utils/Util';
 
 export class CarManager {
 	public scene: GameScene;
@@ -50,13 +50,13 @@ export class CarManager {
 	}
 
 	public hideAll(): void {
-		this.cars.forEach( (car: Car) => {
+		this.cars.forEach((car: Car) => {
 			car.sprite.setVisible(false);
 		});
 	}
 
 	public destroy(): void {
-		this.cars.forEach( (car: Car) => car.destroy() );
+		this.cars.forEach((car: Car) => car.destroy());
 		this.cars.clear();
 	}
 

@@ -1,9 +1,9 @@
 import { TrackSegment } from './TrackSegment';
 import { gameSettings } from '../config/GameSettings';
-import { Util } from './Util';
+import { Util } from '../utils/Util';
 import { SEGMENT } from './SegmentType';
 import { Prop } from './Prop';
-import { GameScene } from '../scenes/GameScene';
+import type { GameScene } from '../scenes/GameScene';
 
 export class Road {
 	public scene: GameScene;
@@ -24,7 +24,11 @@ export class Road {
 		this.addRoad(num, num, num, 0, 0);
 	}
 
-	public addCurve(num: number = SEGMENT.LENGTH.MEDIUM, curve: number = SEGMENT.CURVE.MEDIUM, height: number = SEGMENT.HILL.NONE): void {
+	public addCurve(
+		num: number = SEGMENT.LENGTH.MEDIUM,
+		curve: number = SEGMENT.CURVE.MEDIUM,
+		height: number = SEGMENT.HILL.NONE,
+	): void {
 		this.addRoad(num, num, num, curve, height);
 	}
 
@@ -46,7 +50,10 @@ export class Road {
 		}
 
 		for (let n = 0; n < leave; n++) {
-			this.addRoadSegment(Util.easeInOut(curve, 0, n / leave), Util.easeInOut(startY, endY, (enter + hold + n) / totalLength));
+			this.addRoadSegment(
+				Util.easeInOut(curve, 0, n / leave),
+				Util.easeInOut(startY, endY, (enter + hold + n) / totalLength),
+			);
 		}
 	}
 
@@ -91,7 +98,13 @@ export class Road {
 		this.addHill(SEGMENT.LENGTH.LONG, -SEGMENT.HILL.MEDIUM);
 		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM, -SEGMENT.HILL.LOW);
 
-		this.addRoad(200, 200, 200, SEGMENT.CURVE.NONE, Math.round(-this.getLastSegmentYPos() / gameSettings.segmentLength));
+		this.addRoad(
+			200,
+			200,
+			200,
+			SEGMENT.CURVE.NONE,
+			Math.round(-this.getLastSegmentYPos() / gameSettings.segmentLength),
+		);
 
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
 
@@ -99,7 +112,16 @@ export class Road {
 		this.createTurnSigns();
 	}
 
-	public addProp(scene: GameScene, segmentIndex: number, name: string, offset: number, height: number = 0, scale: number = 3000, flipX: boolean = false, collides: boolean = false): boolean {
+	public addProp(
+		scene: GameScene,
+		segmentIndex: number,
+		name: string,
+		offset: number,
+		height: number = 0,
+		scale: number = 3000,
+		flipX: boolean = false,
+		collides: boolean = false,
+	): boolean {
 		try {
 			const seg = this.segments[segmentIndex];
 			const prop = new Prop(scene, name, offset, height, scale, flipX, collides);
@@ -112,7 +134,7 @@ export class Road {
 	}
 
 	public hideAllProps(): void {
-		this.segments.forEach( (segment: TrackSegment) => {
+		this.segments.forEach((segment: TrackSegment) => {
 			for (const prop of segment.props) {
 				prop.sprite.setVisible(false);
 			}
@@ -126,7 +148,7 @@ export class Road {
 			const offset = Phaser.Math.FloatBetween(1.75, 10);
 			const negated = Math.random() - 0.5 > 0;
 
-			let type;
+			let type: string;
 			let scale = 3000;
 			switch (Phaser.Math.Between(1, 5)) {
 				case 1:

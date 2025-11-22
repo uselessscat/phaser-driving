@@ -1,14 +1,14 @@
 import { BaseScene } from './BaseScene';
-import { Input } from 'phaser';
-import { Colors } from '../Components/Colors';
+import type { Input } from 'phaser';
+import { Colors } from '../constants/Colors';
 import { gameSettings } from '../config/GameSettings';
-import { Util } from '../Components/Util';
-import { Player } from '../Components/Player';
-import { Road } from '../Components/Road';
-import { Renderer } from '../Components/Renderer';
-import { TrackSegment } from '../Components/TrackSegment';
-import { CarManager } from '../Components/CarManager';
-import { Car } from '../Components/Car';
+import { Util } from '../utils/Util';
+import { Player } from '../components/Player';
+import { Road } from '../components/Road';
+import { Renderer } from '../components/Renderer';
+import type { TrackSegment } from '../components/TrackSegment';
+import { CarManager } from '../components/CarManager';
+import type { Car } from '../components/Car';
 
 export class GameScene extends BaseScene {
 	public position: number;
@@ -48,17 +48,47 @@ export class GameScene extends BaseScene {
 		this.road = new Road(this);
 		this.carManager = new CarManager(this, this.road);
 
-		this.sky = this.add.rectangle(-10, -20, gameWidth + 20, gameHeight + 30, Colors.SKY.color).setOrigin(0).setZ(0).setDepth(0);
-		this.clouds2 = this.add.tileSprite(-10, 10, gameWidth + 20, 64, 'clouds1').setOrigin(0).setZ(3).setDepth(1);
-		this.clouds3 = this.add.tileSprite(-10, 20, gameWidth + 20, 64, 'clouds2').setOrigin(0).setZ(4).setDepth(2);
-		this.mountains = this.add.tileSprite(-10, gameHeight / 2 - 85, gameWidth + 20, 128, 'mountain').setOrigin(0).setZ(3).setDepth(3);
-		this.clouds1 = this.add.tileSprite(-10, 0, gameWidth + 20, 64, 'clouds1').setOrigin(0).setZ(2).setDepth(4);
+		this.sky = this.add
+			.rectangle(-10, -20, gameWidth + 20, gameHeight + 30, Colors.SKY.color)
+			.setOrigin(0)
+			.setZ(0)
+			.setDepth(0);
+		this.clouds2 = this.add
+			.tileSprite(-10, 10, gameWidth + 20, 64, 'clouds1')
+			.setOrigin(0)
+			.setZ(3)
+			.setDepth(1);
+		this.clouds3 = this.add
+			.tileSprite(-10, 20, gameWidth + 20, 64, 'clouds2')
+			.setOrigin(0)
+			.setZ(4)
+			.setDepth(2);
+		this.mountains = this.add
+			.tileSprite(-10, gameHeight / 2 - 85, gameWidth + 20, 128, 'mountain')
+			.setOrigin(0)
+			.setZ(3)
+			.setDepth(3);
+		this.clouds1 = this.add
+			.tileSprite(-10, 0, gameWidth + 20, 64, 'clouds1')
+			.setOrigin(0)
+			.setZ(2)
+			.setDepth(4);
 
 		this.hillsBaseY = gameHeight / 2 - 40;
-		this.hills = this.add.tileSprite(-10, this.hillsBaseY, gameWidth + 10, 64, 'hills').setOrigin(0).setZ(5).setDepth(4);
+		this.hills = this.add
+			.tileSprite(-10, this.hillsBaseY, gameWidth + 10, 64, 'hills')
+			.setOrigin(0)
+			.setZ(5)
+			.setDepth(4);
 
 		this.renderer = new Renderer(this, 5);
-		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth + 300, 'playercar'); // player z helps with collision distances
+		this.player = new Player(
+			this,
+			0,
+			gameHeight - 5,
+			gameSettings.cameraHeight * gameSettings.cameraDepth + 300,
+			'playercar',
+		); // player z helps with collision distances
 
 		this.debugText = this.add.bitmapText(5, 5, 'retro', '', 16).setTint(0xff0000).setDepth(200);
 
@@ -68,7 +98,7 @@ export class GameScene extends BaseScene {
 		this.carManager.resetCars();
 
 		this.pasuuna.loadSongFromCache('dream-candy', true);
-		this.pasuuna.setVolume(0.70);
+		this.pasuuna.setVolume(0.7);
 	}
 
 	public update(time: number, delta: number): void {
@@ -82,12 +112,16 @@ export class GameScene extends BaseScene {
 		this.handleInput(delta, playerSegment);
 
 		this.player.y = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
-		this.player.x = this.player.x - (dx * speedMultiplier * playerSegment.curve * gameSettings.centrifugal);
+		this.player.x = this.player.x - dx * speedMultiplier * playerSegment.curve * gameSettings.centrifugal;
 
 		this.player.speed = Phaser.Math.Clamp(this.player.speed, 0, gameSettings.maxSpeed);
 		this.player.x = Phaser.Math.Clamp(this.player.x, -gameSettings.roadWidthClamp, gameSettings.roadWidthClamp);
 		this.player.turn = Phaser.Math.Clamp(this.player.turn, -gameSettings.maxTurn, gameSettings.maxTurn);
-		this.player.trackPosition = Util.increase(this.player.trackPosition, dlt * this.player.speed, this.road.trackLength);
+		this.player.trackPosition = Util.increase(
+			this.player.trackPosition,
+			dlt * this.player.speed,
+			this.road.trackLength,
+		);
 
 		this.player.pitch = (playerSegment.p1.world.y - playerSegment.p2.world.y) * 0.002;
 
@@ -98,7 +132,7 @@ export class GameScene extends BaseScene {
 		// collision check with props if outside of road
 		if (playerSegment.props.size && Math.abs(this.player.x) > 1) {
 			for (const prop of playerSegment.props) {
-				if ( Util.overlapPlayer(this.player, prop) ) {
+				if (Util.overlapPlayer(this.player, prop)) {
 					this.player.collide('prop');
 					this.player.trackPosition = Util.increase(playerSegment.p1.world.z, -this.player.z, this.road.trackLength);
 					this.player.speed = this.player.speed > 50 ? 50 : this.player.speed;
@@ -109,7 +143,7 @@ export class GameScene extends BaseScene {
 		// collision check with cars if on road
 		if (playerSegment.cars.size && Math.abs(this.player.x) < 1) {
 			for (const car of playerSegment.cars) {
-				if ( Util.overlapPlayer(this.player, car) ) {
+				if (Util.overlapPlayer(this.player, car)) {
 					this.player.collide('car');
 					this.player.trackPosition = Util.increase(car.trackPosition, -this.player.z, this.road.trackLength);
 					this.player.speed = this.player.speed / 2;
@@ -182,7 +216,11 @@ export class GameScene extends BaseScene {
 		const dlt = delta * 0.01;
 
 		if (this.cursors.up.isDown) {
-			this.player.speed = Util.accelerate(this.player.speed, Util.interpolate(gameSettings.accel, 0, Util.percentRemaining(this.player.speed, gameSettings.maxSpeed) ), dlt);
+			this.player.speed = Util.accelerate(
+				this.player.speed,
+				Util.interpolate(gameSettings.accel, 0, Util.percentRemaining(this.player.speed, gameSettings.maxSpeed)),
+				dlt,
+			);
 			this.player.accelerating = true;
 		} else if (this.cursors.down.isDown) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.breaking, dlt);
@@ -202,8 +240,12 @@ export class GameScene extends BaseScene {
 			this.player.turn += dlt * (Math.abs(playerSegment.curve) > 0.1 ? 0.5 : 0.25);
 			this.cameraAngle -= dlt;
 		} else {
-			this.player.turn = Math.abs(this.player.turn) < 0.01 ? 0 : Util.interpolate(this.player.turn, 0, gameSettings.turnResetMultiplier);
-			this.cameraAngle = Math.abs(this.cameraAngle) < 0.02 ? 0 : Util.interpolate(this.cameraAngle, 0, gameSettings.cameraAngleResetMultiplier);
+			this.player.turn =
+				Math.abs(this.player.turn) < 0.01 ? 0 : Util.interpolate(this.player.turn, 0, gameSettings.turnResetMultiplier);
+			this.cameraAngle =
+				Math.abs(this.cameraAngle) < 0.02
+					? 0
+					: Util.interpolate(this.cameraAngle, 0, gameSettings.cameraAngleResetMultiplier);
 		}
 	}
 }

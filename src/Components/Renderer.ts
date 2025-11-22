@@ -1,26 +1,64 @@
-import { SegmentPoint } from './SegmentPoint';
-import { Util } from './Util';
+import type { SegmentPoint } from './SegmentPoint';
+import { Util } from '../utils/Util';
 import { gameSettings } from '../config/GameSettings';
-import { GameScene } from '../scenes/GameScene';
+import type { GameScene } from '../scenes/GameScene';
 
 export class Renderer {
-	public static project(sp: SegmentPoint, cameraX: number, cameraY: number, cameraZ: number, cameraDepth: number, width: number, height: number, roadWidth: number) {
+	public static project(
+		sp: SegmentPoint,
+		cameraX: number,
+		cameraY: number,
+		cameraZ: number,
+		cameraDepth: number,
+		width: number,
+		height: number,
+		roadWidth: number,
+	) {
 		sp.camera.x = (sp.world.x || 0) - cameraX;
 		sp.camera.y = (sp.world.y || 0) - cameraY;
 		sp.camera.z = (sp.world.z || 0) - cameraZ;
 		sp.screen.scale = cameraDepth / sp.camera.z;
-		sp.screen.x = Math.round((width / 2) + (sp.screen.scale * sp.camera.x * width / 2));
-		sp.screen.y = Math.round((height / 2) - (sp.screen.scale * sp.camera.y * height / 2));
-		sp.screen.w = Math.round((sp.screen.scale * roadWidth * width / 2));
+		sp.screen.x = Math.round(width / 2 + (sp.screen.scale * sp.camera.x * width) / 2);
+		sp.screen.y = Math.round(height / 2 - (sp.screen.scale * sp.camera.y * height) / 2);
+		sp.screen.w = Math.round((sp.screen.scale * roadWidth * width) / 2);
 	}
 
-	public static drawPolygon(g: Phaser.GameObjects.Graphics, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, color: number) {
-		g.save().fillStyle(color).beginPath()
-			.moveTo(x1, y1).lineTo(x2, y2).lineTo(x3, y3).lineTo(x4, y4)
-			.closePath().fillPath().restore();
+	public static drawPolygon(
+		g: Phaser.GameObjects.Graphics,
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		x3: number,
+		y3: number,
+		x4: number,
+		y4: number,
+		color: number,
+	) {
+		g.save()
+			.fillStyle(color)
+			.beginPath()
+			.moveTo(x1, y1)
+			.lineTo(x2, y2)
+			.lineTo(x3, y3)
+			.lineTo(x4, y4)
+			.closePath()
+			.fillPath()
+			.restore();
 	}
 
-	public static drawSegment(ctx: Phaser.GameObjects.Graphics, width: number, lanes: number, x1: number, y1: number, w1: number, x2: number, y2: number, w2: number, colors: any) {
+	public static drawSegment(
+		ctx: Phaser.GameObjects.Graphics,
+		width: number,
+		lanes: number,
+		x1: number,
+		y1: number,
+		w1: number,
+		x2: number,
+		y2: number,
+		w2: number,
+		colors: any,
+	) {
 		const r1 = Util.rumbleWidth(w1, lanes);
 		const r2 = Util.rumbleWidth(w2, lanes);
 		const l1 = Util.laneMarkerWidth(w1, lanes);
@@ -34,14 +72,25 @@ export class Renderer {
 		Renderer.drawPolygon(ctx, x1 + w1 + r1, y1, x1 + w1, y1, x2 + w2, y2, x2 + w2 + r2, y2, colors.RUMBLE);
 		Renderer.drawPolygon(ctx, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, colors.ROAD);
 
-		const lanew1 = w1 * 2 / lanes;
-		const lanew2 = w2 * 2 / lanes;
+		const lanew1 = (w1 * 2) / lanes;
+		const lanew2 = (w2 * 2) / lanes;
 		let lanex1 = x1 - w1 + lanew1;
 		let lanex2 = x2 - w2 + lanew2;
 
 		if (colors.LANE) {
 			for (let lane = 1; lane < lanes; lanex1 += lanew1, lanex2 += lanew2, lane++) {
-				Renderer.drawPolygon(ctx, lanex1 - l1 / 2, y1, lanex1 + l1 / 2, y1, lanex2 + l2 / 2, y2, lanex2 - l2 / 2, y2, colors.LANE);
+				Renderer.drawPolygon(
+					ctx,
+					lanex1 - l1 / 2,
+					y1,
+					lanex1 + l1 / 2,
+					y1,
+					lanex2 + l2 / 2,
+					y2,
+					lanex2 - l2 / 2,
+					y2,
+					colors.LANE,
+				);
 			}
 		}
 	}
@@ -80,25 +129,51 @@ export class Renderer {
 			segment.clip = maxY;
 			segment.looped = segment.index < baseSegment.index;
 
-			Renderer.project(segment.p1, this.scene.player.x * gameSettings.roadWidth - roadCenterX, this.scene.player.y + gameSettings.cameraHeight,
-				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0), gameSettings.cameraDepth,
-				gameWidth, gameHeight - gameSettings.projectYCompensation, gameSettings.roadWidth);
+			Renderer.project(
+				segment.p1,
+				this.scene.player.x * gameSettings.roadWidth - roadCenterX,
+				this.scene.player.y + gameSettings.cameraHeight,
+				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0),
+				gameSettings.cameraDepth,
+				gameWidth,
+				gameHeight - gameSettings.projectYCompensation,
+				gameSettings.roadWidth,
+			);
 
-			Renderer.project(segment.p2, this.scene.player.x * gameSettings.roadWidth - roadCenterX - deltaX, this.scene.player.y + gameSettings.cameraHeight,
-				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0), gameSettings.cameraDepth,
-				gameWidth, gameHeight - gameSettings.projectYCompensation, gameSettings.roadWidth);
+			Renderer.project(
+				segment.p2,
+				this.scene.player.x * gameSettings.roadWidth - roadCenterX - deltaX,
+				this.scene.player.y + gameSettings.cameraHeight,
+				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0),
+				gameSettings.cameraDepth,
+				gameWidth,
+				gameHeight - gameSettings.projectYCompensation,
+				gameSettings.roadWidth,
+			);
 
 			roadCenterX = roadCenterX + deltaX;
 			deltaX = deltaX + segment.curve;
 
-			if (segment.p1.camera.z <= gameSettings.cameraDepth || segment.p2.screen.y >= maxY || segment.p2.screen.y >= segment.p1.screen.y) {
+			if (
+				segment.p1.camera.z <= gameSettings.cameraDepth
+				|| segment.p2.screen.y >= maxY
+				|| segment.p2.screen.y >= segment.p1.screen.y
+			) {
 				continue;
 			}
 
-			Renderer.drawSegment(this.roadGraphics, gameWidth, gameSettings.lanes,
-				segment.p1.screen.x - 10, segment.p1.screen.y, segment.p1.screen.w,
-				segment.p2.screen.x - 10, segment.p2.screen.y, segment.p2.screen.w,
-				segment.colors);
+			Renderer.drawSegment(
+				this.roadGraphics,
+				gameWidth,
+				gameSettings.lanes,
+				segment.p1.screen.x - 10,
+				segment.p1.screen.y,
+				segment.p1.screen.w,
+				segment.p2.screen.x - 10,
+				segment.p2.screen.y,
+				segment.p2.screen.w,
+				segment.colors,
+			);
 
 			maxY = segment.p2.screen.y;
 		}
@@ -111,13 +186,15 @@ export class Renderer {
 			const scale = segment.p1.screen.scale;
 
 			for (const prop of segment.props) {
-				const x = segment.p1.screen.x - 10 + (scale * prop.offset * gameSettings.roadWidth * gameWidth / 2);
+				const x = segment.p1.screen.x - 10 + (scale * prop.offset * gameSettings.roadWidth * gameWidth) / 2;
 				prop.update(x, segment.p1.screen.y, scale, segment.clip);
 			}
 
 			for (const car of segment.cars) {
 				const spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent);
-				const spriteX = Util.interpolate(segment.p1.screen.x - 10, segment.p2.screen.x - 10, car.percent) + (spriteScale * car.offset * gameSettings.roadWidth * gameWidth / 2);
+				const spriteX =
+					Util.interpolate(segment.p1.screen.x - 10, segment.p2.screen.x - 10, car.percent)
+					+ (spriteScale * car.offset * gameSettings.roadWidth * gameWidth) / 2;
 				const spriteY = Util.interpolate(segment.p1.screen.y, segment.p2.screen.y, car.percent);
 				car.draw(spriteX, spriteY, spriteScale, segment.clip);
 			}

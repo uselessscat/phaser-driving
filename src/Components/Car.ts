@@ -1,8 +1,8 @@
-import { GameScene } from '../scenes/GameScene';
-import { TrackSegment } from './TrackSegment';
+import type { GameScene } from '../scenes/GameScene';
+import type { TrackSegment } from './TrackSegment';
 import { gameSettings } from '../config/GameSettings';
-import { Util } from './Util';
-import { Road } from './Road';
+import { Util } from '../utils/Util';
+import type { Road } from './Road';
 
 export class Car {
 	public scene: GameScene;
@@ -76,7 +76,7 @@ export class Car {
 		}
 
 		for (let i = 0; i < lookahead; i++) {
-			const segment = this.road.segments[ (carSegment.index + i) % this.road.segments.length];
+			const segment = this.road.segments[(carSegment.index + i) % this.road.segments.length];
 
 			if (segment === playerSegment && this.speed > player.speed && Util.overlapPlayer(player, this)) {
 				if (player.x < this.offset) {
@@ -88,7 +88,9 @@ export class Car {
 
 			if (segment.cars.size) {
 				segment.cars.forEach((car: Car) => {
-					if (car === this) { return; }
+					if (car === this) {
+						return;
+					}
 
 					if (this.speed > car.speed && Util.overlapSprite(car.sprite, this.sprite)) {
 						if (car.offset < this.offset) {
@@ -99,7 +101,6 @@ export class Car {
 					}
 				});
 			}
-
 		}
 
 		// steer towards center of track if outside it

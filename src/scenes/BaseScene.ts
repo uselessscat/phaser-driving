@@ -1,5 +1,5 @@
-import { PoisonVialGame } from '../game';
-import { PasuunaPlugin } from '@pinkkis/phaser-plugin-pasuuna';
+import type { PoisonVialGame } from '../game';
+import type { PasuunaPlugin } from '@pinkkis/phaser-plugin-pasuuna';
 
 export class BaseScene extends Phaser.Scene {
 	public game: PoisonVialGame;
