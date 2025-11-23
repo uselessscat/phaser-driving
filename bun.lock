@@ -4,14 +4,11 @@
   "workspaces": {
     "": {
       "name": "phaser-driver",
-      "dependencies": {
-        "@tweakpane/core": "^2.0.5",
-        "tweakpane": "^4.0.5",
-      },
       "devDependencies": {
         "@biomejs/biome": "2.3.7",
         "@csstools/normalize.css": "^12.1.1",
         "@pinkkis/phaser-plugin-pasuuna": "^0.5.3",
+        "@tweakpane/core": "^2.0.5",
         "archiver": "^3.1.1",
         "cross-env": "^5.2.1",
         "expose-loader": "^0.7.5",
@@ -19,6 +16,7 @@
         "phaser": "^3.90.0",
         "stats-js": "^1.0.1",
         "three": "0.120.0",
+        "tweakpane": "^4.0.5",
         "typescript": "^5.9.3",
         "vite": "^7.2.4",
       },

@@ -1,3 +1,4 @@
+// biome-ignore-all lint: no reason
 /**
  * @author Rich Tibbett / https://github.com/richtr
  * @author mrdoob / http://mrdoob.com/
@@ -19,7 +20,6 @@ GLTFLoader.prototype = {
 	crossOrigin: 'anonymous',
 
 	load: function (url, onLoad, onProgress, onError) {
-
 		var resourcePath;
 
 		if (this.resourcePath !== undefined) {
@@ -161,7 +161,7 @@ GLTFLoader.prototype = {
 
 					default:
 						if (extensionsRequired.indexOf(extensionName) >= 0) {
-							console.warn('THREE.GLTFLoader: Unknown extension "' + extensionName + '".');
+							console.warn(`THREE.GLTFLoader: Unknown extension "${extensionName}".`);
 						}
 				}
 			}
@@ -277,7 +277,7 @@ GLTFLightsExtension.prototype.loadLight = function (lightIndex) {
 			break;
 
 		default:
-			throw new Error('THREE.GLTFLoader: Unexpected light type, "' + lightDef.type + '".');
+			throw new Error(`THREE.GLTFLoader: Unexpected light type, "${lightDef.type}".`);
 	}
 
 	// Some lights (e.g. spot) default to a position other than the origin. Reset the position
@@ -288,7 +288,7 @@ GLTFLightsExtension.prototype.loadLight = function (lightIndex) {
 
 	if (lightDef.intensity !== undefined) lightNode.intensity = lightDef.intensity;
 
-	lightNode.name = lightDef.name || 'light_' + lightIndex;
+	lightNode.name = lightDef.name || `light_${lightIndex}`;
 
 	return Promise.resolve(lightNode);
 };
@@ -424,23 +424,26 @@ GLTFDracoMeshCompressionExtension.prototype.decodePrimitive = function (primitiv
 		}
 	}
 
-	return parser.getDependency('bufferView', bufferViewIndex).then((bufferView) => new Promise((resolve) => {
-			dracoLoader.decodeDracoFile(
-				bufferView,
-				(geometry) => {
-					for (var attributeName in geometry.attributes) {
-						var attribute = geometry.attributes[attributeName];
-						var normalized = attributeNormalizedMap[attributeName];
+	return parser.getDependency('bufferView', bufferViewIndex).then(
+		(bufferView) =>
+			new Promise((resolve) => {
+				dracoLoader.decodeDracoFile(
+					bufferView,
+					(geometry) => {
+						for (var attributeName in geometry.attributes) {
+							var attribute = geometry.attributes[attributeName];
+							var normalized = attributeNormalizedMap[attributeName];
 
-						if (normalized !== undefined) attribute.normalized = normalized;
-					}
+							if (normalized !== undefined) attribute.normalized = normalized;
+						}
 
-					resolve(geometry);
-				},
-				threeAttributeMap,
-				attributeTypeMap,
-			);
-		}));
+						resolve(geometry);
+					},
+					threeAttributeMap,
+					attributeTypeMap,
+				);
+			}),
+	);
 };
 
 /**
@@ -1146,86 +1149,84 @@ function addMorphTargets(geometry, targets, parser) {
 		}
 	}
 
-	return Promise.all([Promise.all(pendingPositionAccessors), Promise.all(pendingNormalAccessors)]).then(
-		(accessors) => {
-			var morphPositions = accessors[0];
-			var morphNormals = accessors[1];
+	return Promise.all([Promise.all(pendingPositionAccessors), Promise.all(pendingNormalAccessors)]).then((accessors) => {
+		var morphPositions = accessors[0];
+		var morphNormals = accessors[1];
 
-			// Clone morph target accessors before modifying them.
+		// Clone morph target accessors before modifying them.
 
-			for (var i = 0, il = morphPositions.length; i < il; i++) {
-				if (geometry.attributes.position === morphPositions[i]) continue;
+		for (var i = 0, il = morphPositions.length; i < il; i++) {
+			if (geometry.attributes.position === morphPositions[i]) continue;
 
-				morphPositions[i] = cloneBufferAttribute(morphPositions[i]);
-			}
+			morphPositions[i] = cloneBufferAttribute(morphPositions[i]);
+		}
 
-			for (var i = 0, il = morphNormals.length; i < il; i++) {
-				if (geometry.attributes.normal === morphNormals[i]) continue;
+		for (var i = 0, il = morphNormals.length; i < il; i++) {
+			if (geometry.attributes.normal === morphNormals[i]) continue;
 
-				morphNormals[i] = cloneBufferAttribute(morphNormals[i]);
-			}
+			morphNormals[i] = cloneBufferAttribute(morphNormals[i]);
+		}
 
-			for (var i = 0, il = targets.length; i < il; i++) {
-				var target = targets[i];
-				var attributeName = 'morphTarget' + i;
+		for (var i = 0, il = targets.length; i < il; i++) {
+			var target = targets[i];
+			var attributeName = 'morphTarget' + i;
 
-				if (hasMorphPosition) {
-					// Three.js morph position is absolute value. The formula is
-					//   basePosition
-					//     + weight0 * ( morphPosition0 - basePosition )
-					//     + weight1 * ( morphPosition1 - basePosition )
-					//     ...
-					// while the glTF one is relative
-					//   basePosition
-					//     + weight0 * glTFmorphPosition0
-					//     + weight1 * glTFmorphPosition1
-					//     ...
-					// then we need to convert from relative to absolute here.
+			if (hasMorphPosition) {
+				// Three.js morph position is absolute value. The formula is
+				//   basePosition
+				//     + weight0 * ( morphPosition0 - basePosition )
+				//     + weight1 * ( morphPosition1 - basePosition )
+				//     ...
+				// while the glTF one is relative
+				//   basePosition
+				//     + weight0 * glTFmorphPosition0
+				//     + weight1 * glTFmorphPosition1
+				//     ...
+				// then we need to convert from relative to absolute here.
 
-					if (target.POSITION !== undefined) {
-						var positionAttribute = morphPositions[i];
-						positionAttribute.name = attributeName;
+				if (target.POSITION !== undefined) {
+					var positionAttribute = morphPositions[i];
+					positionAttribute.name = attributeName;
 
-						var position = geometry.attributes.position;
+					var position = geometry.attributes.position;
 
-						for (var j = 0, jl = positionAttribute.count; j < jl; j++) {
-							positionAttribute.setXYZ(
-								j,
-								positionAttribute.getX(j) + position.getX(j),
-								positionAttribute.getY(j) + position.getY(j),
-								positionAttribute.getZ(j) + position.getZ(j),
-							);
-						}
-					}
-				}
-
-				if (hasMorphNormal) {
-					// see target.POSITION's comment
-
-					if (target.NORMAL !== undefined) {
-						var normalAttribute = morphNormals[i];
-						normalAttribute.name = attributeName;
-
-						var normal = geometry.attributes.normal;
-
-						for (var j = 0, jl = normalAttribute.count; j < jl; j++) {
-							normalAttribute.setXYZ(
-								j,
-								normalAttribute.getX(j) + normal.getX(j),
-								normalAttribute.getY(j) + normal.getY(j),
-								normalAttribute.getZ(j) + normal.getZ(j),
-							);
-						}
+					for (var j = 0, jl = positionAttribute.count; j < jl; j++) {
+						positionAttribute.setXYZ(
+							j,
+							positionAttribute.getX(j) + position.getX(j),
+							positionAttribute.getY(j) + position.getY(j),
+							positionAttribute.getZ(j) + position.getZ(j),
+						);
 					}
 				}
 			}
 
-			if (hasMorphPosition) geometry.morphAttributes.position = morphPositions;
-			if (hasMorphNormal) geometry.morphAttributes.normal = morphNormals;
+			if (hasMorphNormal) {
+				// see target.POSITION's comment
 
-			return geometry;
-		},
-	);
+				if (target.NORMAL !== undefined) {
+					var normalAttribute = morphNormals[i];
+					normalAttribute.name = attributeName;
+
+					var normal = geometry.attributes.normal;
+
+					for (var j = 0, jl = normalAttribute.count; j < jl; j++) {
+						normalAttribute.setXYZ(
+							j,
+							normalAttribute.getX(j) + normal.getX(j),
+							normalAttribute.getY(j) + normal.getY(j),
+							normalAttribute.getZ(j) + normal.getZ(j),
+						);
+					}
+				}
+			}
+		}
+
+		if (hasMorphPosition) geometry.morphAttributes.position = morphPositions;
+		if (hasMorphNormal) geometry.morphAttributes.normal = morphNormals;
+
+		return geometry;
+	});
 }
 
 /**
@@ -1495,9 +1496,7 @@ GLTFParser.prototype.getDependencies = function (type) {
 	if (!dependencies) {
 		var defs = this.json[type + (type === 'mesh' ? 'es' : 's')] || [];
 
-		dependencies = Promise.all(
-			defs.map((def, index) => this.getDependency(type, index)),
-		);
+		dependencies = Promise.all(defs.map((def, index) => this.getDependency(type, index)));
 
 		this.cache.add(type, dependencies);
 	}
@@ -1744,7 +1743,6 @@ GLTFParser.prototype.loadTexture = function (textureIndex) {
  * @return {Promise}
  */
 GLTFParser.prototype.assignTexture = function (materialParams, mapName, mapDef) {
-
 	return this.getDependency('texture', mapDef.index).then((texture) => {
 		switch (mapName) {
 			case 'aoMap':
@@ -2026,7 +2024,9 @@ function addPrimitiveAttributes(geometry, primitiveDef, parser) {
 
 	assignExtrasToUserData(geometry, primitiveDef);
 
-	return Promise.all(pending).then(() => primitiveDef.targets !== undefined ? addMorphTargets(geometry, primitiveDef.targets, parser) : geometry);
+	return Promise.all(pending).then(() =>
+		primitiveDef.targets !== undefined ? addMorphTargets(geometry, primitiveDef.targets, parser) : geometry,
+	);
 }
 
 /**
@@ -2104,7 +2104,8 @@ GLTFParser.prototype.loadMesh = function (meshIndex) {
 		pending.push(material);
 	}
 
-	return Promise.all(pending).then((originalMaterials) => this.loadGeometries(primitives).then((geometries) => {
+	return Promise.all(pending).then((originalMaterials) =>
+		this.loadGeometries(primitives).then((geometries) => {
 			var meshes = [];
 
 			for (var i = 0, il = geometries.length; i < il; i++) {
@@ -2174,7 +2175,8 @@ GLTFParser.prototype.loadMesh = function (meshIndex) {
 			}
 
 			return group;
-		}));
+		}),
+	);
 };
 
 /**

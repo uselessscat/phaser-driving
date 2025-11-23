@@ -128,7 +128,7 @@ export class Road {
 			seg.props.add(prop);
 
 			return true;
-		} catch (e) {
+		} catch {
 			return false;
 		}
 	}

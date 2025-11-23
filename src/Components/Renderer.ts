@@ -105,7 +105,7 @@ export class Renderer {
 		this.roadGraphics = this.scene.add.graphics().setDepth(depth);
 	}
 
-	public update(time: number, delta: number): void {
+	public update(_time: number, _delta: number): void {
 		this.roadGraphics.clear();
 		this.drawRoad();
 	}

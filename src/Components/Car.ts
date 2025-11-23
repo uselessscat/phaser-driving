@@ -5,6 +5,10 @@ import { Util } from '../utils/Util';
 import type { Road } from './Road';
 
 export class Car {
+	private readonly MAX_FRAME_DISTANCE = 20;
+	private readonly MIN_LATERAL_DIFF = 0.3;
+	private readonly LOOKAHEAD_SEGMENTS = 50;
+
 	public scene: GameScene;
 	public road: Road;
 	public sprite: Phaser.GameObjects.Sprite;
@@ -20,11 +24,14 @@ export class Car {
 		this.offset = offset;
 		this.speed = speed;
 		this.trackPosition = trackPosition;
-		this.sprite = this.scene.add.sprite(-999, 999, sprite, 0).setOrigin(0.5, 1);
+		this.sprite = this.scene.add.sprite(0, 0, sprite, 0).setOrigin(0.5, 1).setVisible(false);
 	}
 
-	public get isOnGravel(): boolean {
-		return Math.abs(this.offset) > 1;
+	private steerAwayFrom(targetOffset: number, delta: number, strength: number = 1): void {
+		const dt = delta / 1000;
+		const direction = targetOffset < this.offset ? 1 : -1;
+
+		this.offset = Util.interpolate(this.offset, direction, dt * strength);
 	}
 
 	public update(delta: number, carSegment: TrackSegment, playerSegment: TrackSegment, playerOffset: number): void {
@@ -54,11 +61,11 @@ export class Car {
 	public updateAngleFrame(carSegment: TrackSegment, playerSegment: TrackSegment, playerOffset: number): void {
 		const roadDistance = Math.abs(carSegment.index - playerSegment.index);
 		const offsetDistance = Math.abs(playerOffset - this.offset);
-		const isLeft = playerOffset > this.offset;
+		const isPlayerRight = playerOffset > this.offset;
 
-		if (roadDistance < 20 && offsetDistance > 0.3) {
+		if (roadDistance < this.MAX_FRAME_DISTANCE && offsetDistance > this.MIN_LATERAL_DIFF) {
 			this.sprite.setFrame(1);
-			this.sprite.flipX = !isLeft;
+			this.sprite.flipX = !isPlayerRight;
 		} else {
 			this.sprite.setFrame(0);
 		}
@@ -66,8 +73,6 @@ export class Car {
 
 	public updateOffset(delta: number, carSegment: TrackSegment, playerSegment: TrackSegment): void {
 		// segments ahead to see if there's somethign to avoid
-		const lookahead = 50;
-
 		const player = this.scene.player;
 
 		// car not visible, don't do ai behaviour
@@ -75,15 +80,11 @@ export class Car {
 			return;
 		}
 
-		for (let i = 0; i < lookahead; i++) {
+		for (let i = 0; i < this.LOOKAHEAD_SEGMENTS; i++) {
 			const segment = this.road.segments[(carSegment.index + i) % this.road.segments.length];
 
 			if (segment === playerSegment && this.speed > player.speed && Util.overlapPlayer(player, this)) {
-				if (player.x < this.offset) {
-					this.offset = Util.interpolate(this.offset, 1, delta * 0.1);
-				} else {
-					this.offset = Util.interpolate(this.offset, -1, delta * 0.1);
-				}
+				this.steerAwayFrom(player.x, delta);
 			}
 
 			if (segment.cars.size) {
@@ -93,11 +94,7 @@ export class Car {
 					}
 
 					if (this.speed > car.speed && Util.overlapSprite(car.sprite, this.sprite)) {
-						if (car.offset < this.offset) {
-							this.offset = Util.interpolate(this.offset, 1, delta * 0.1);
-						} else {
-							this.offset = Util.interpolate(this.offset, -1, delta * 0.1);
-						}
+						this.steerAwayFrom(car.offset, delta);
 					}
 				});
 			}

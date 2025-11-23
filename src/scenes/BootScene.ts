@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene';
 
 export class BootScene extends BaseScene {
-	constructor(key: string, options: any) {
+	constructor(_key: string, _options: any) {
 		super('BootScene');
 	}
 

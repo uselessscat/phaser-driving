@@ -1,15 +1,15 @@
-import type { PoisonVialGame } from '../game';
+import type { PhaserDrivingGame } from '../game';
 import type { PasuunaPlugin } from '@pinkkis/phaser-plugin-pasuuna';
 
 export class BaseScene extends Phaser.Scene {
-	public game: PoisonVialGame;
+	public game: PhaserDrivingGame;
 	public pasuuna: PasuunaPlugin;
 
-	constructor(key: string, options?: any) {
+	constructor(key: string, _options?: any) {
 		super(key);
 	}
 
-	public setTimerEvent(timeMin: number, timeMax: number, callback: () => {}, params?: any[]): Phaser.Time.TimerEvent {
+	public setTimerEvent(timeMin: number, timeMax: number, callback: () => void, params?: any[]): Phaser.Time.TimerEvent {
 		return this.time.delayedCall(Phaser.Math.Between(timeMin, timeMax), callback, params || [], this);
 	}
 }

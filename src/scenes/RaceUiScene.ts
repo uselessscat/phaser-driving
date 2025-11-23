@@ -13,7 +13,7 @@ export class RaceUiScene extends BaseScene {
 
 	public timer: Phaser.Tweens.Tween;
 
-	constructor(key: string, options: any) {
+	constructor(_key: string, _options: any) {
 		super('RaceUiScene');
 	}
 
@@ -42,9 +42,13 @@ export class RaceUiScene extends BaseScene {
 	}
 
 	public update(): void {
-		const timerValue = this.timer.getValue().toFixed(2).split('.');
-		this.timeLargeText.setText(timerValue[0]);
-		this.timeSmallText.setText(timerValue[1]);
+		const timer = this.timer.getValue();
+
+		if (timer != null) {
+			const timerValue = timer.toFixed(2).split('.');
+			this.timeLargeText.setText(timerValue[0] ?? '');
+			this.timeSmallText.setText(timerValue[1] ?? '');
+		}
 
 		this.trackRadar.update();
 		const radarCars = this.gameScene.getRadarCars(700);
@@ -60,7 +64,7 @@ export class RaceUiScene extends BaseScene {
 	private setupEvents(): void {
 		this.registry.events.on(
 			'changedata',
-			(parent: any, key: string, data: any) => {
+			(_parent: any, key: string, data: any) => {
 				switch (key) {
 					case 'speed':
 						this.speedGauge.speed = data;

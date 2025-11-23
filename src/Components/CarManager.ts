@@ -56,7 +56,9 @@ export class CarManager {
 	}
 
 	public destroy(): void {
-		this.cars.forEach((car: Car) => car.destroy());
+		this.cars.forEach((car: Car) => {
+			car.destroy();
+		});
 		this.cars.clear();
 	}
 

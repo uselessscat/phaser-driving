@@ -1,7 +1,7 @@
 import { PasuunaPlugin } from '@pinkkis/phaser-plugin-pasuuna';
 
 // phaser game config
-export const gameConfig: GameConfig = {
+export const gameConfig = {
 	type: Phaser.AUTO,
 	scale: {
 		parent: 'game-container',

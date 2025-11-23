@@ -25,7 +25,7 @@ export class Player {
 	public accelerating: boolean = false;
 	public screeching: boolean = false;
 	public collisionRadius: number = 20;
-	private turnVector: Phaser.Math.Vector3;
+	public turnVector: Phaser.Math.Vector3;
 
 	constructor(scene: GameScene, x: number, y: number, z: number, modelKey: string) {
 		this.position = new Phaser.Math.Vector3(x, y, z);
@@ -92,7 +92,7 @@ export class Player {
 			groundColor: 0x111111,
 			intensity: 2,
 		});
-		this.p3d.on('loadgltf', (gltf: any, model: any) => {
+		this.p3d.on('loadgltf', (_gltf: any, model: any) => {
 			model.rotateY(HALFPI);
 			model.position.set(0, 0, 0);
 			model.scale.set(1, 1, 1);

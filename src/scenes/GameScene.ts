@@ -30,9 +30,9 @@ export class GameScene extends BaseScene {
 	public hills: Phaser.GameObjects.TileSprite;
 	public hillsBaseY: number;
 
-	public cursors: Input.Keyboard.CursorKeys;
+	public cursors: Input.Keyboard.CursorKeys | undefined;
 
-	constructor(key: string, options: any) {
+	constructor(_key: string, _options: any) {
 		super('GameScene');
 	}
 
@@ -42,7 +42,7 @@ export class GameScene extends BaseScene {
 		const gameWidth = this.scale.gameSize.width;
 		const gameHeight = this.scale.gameSize.height;
 
-		this.cursors = this.input.keyboard.createCursorKeys();
+		this.cursors = this.input.keyboard?.createCursorKeys();
 		this.camera = this.cameras.main;
 
 		this.road = new Road(this);

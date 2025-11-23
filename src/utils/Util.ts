@@ -51,7 +51,7 @@ export class Util {
 	public static toInt(obj: any, def: any): number {
 		if (obj !== null) {
 			const x = parseInt(obj, 10);
-			if (!isNaN(x)) {
+			if (!Number.isNaN(x)) {
 				return x;
 			}
 		}

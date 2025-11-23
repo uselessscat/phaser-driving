@@ -1,5 +1,5 @@
 // require modules
-const fs = require('fs');
+const fs = require('node:fs');
 const archiver = require('archiver');
 
 const { version, buildDir, distDir } = require('../buildConfig');

@@ -8,18 +8,10 @@ import { LoadScene } from './scenes/LoadScene';
 import { GameScene } from './scenes/GameScene';
 import { RaceUiScene } from './scenes/RaceUiScene';
 
-// set up game class, and global stuff
-export class PoisonVialGame extends Phaser.Game {
-	private debug: boolean = false;
+export class PhaserDrivingGame extends Phaser.Game {}
 
-	constructor(config: GameConfig) {
-		super(config);
-	}
-}
-
-// start the game
 window.onload = () => {
-	const game = new PoisonVialGame(gameConfig);
+	const game = new PhaserDrivingGame(gameConfig);
 
 	// set up stats
 	if (window.env.buildType !== 'production') {
